@@ -117,7 +117,14 @@ function App() {
           </form>
         </div>
 
-        {!profile && <FeaturedProfile />}
+        {!profile && (
+          <>
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
+              Featured Profile
+            </h2>
+            <FeaturedProfile />
+          </>
+        )}
 
         {error && (
           <div className="mb-8 p-4 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-100 rounded-lg border border-red-200 dark:border-red-800">

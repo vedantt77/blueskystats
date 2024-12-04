@@ -27,6 +27,12 @@ const EngagementStats = ({ metrics }) => {
         </div>
         <div className="text-sm text-gray-600 dark:text-gray-400">Engagement Rate</div>
       </div>
+      <div className="col-span-2">
+        <div className="text-2xl font-bold text-blue-500">
+          {metrics.totalPosts.toLocaleString()}
+        </div>
+        <div className="text-sm text-gray-600 dark:text-gray-400">Total Posts</div>
+      </div>
     </div>
   );
 };

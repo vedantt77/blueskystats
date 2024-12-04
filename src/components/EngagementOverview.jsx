@@ -1,53 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import TopPost from './TopPost';
 import EngagementStats from './EngagementStats';
+import { filterPostsByTimeRange, calculateEngagementMetrics } from '../utils/engagementUtils';
 
 const EngagementOverview = ({ posts, loading }) => {
   const [timeRange, setTimeRange] = useState('30');
 
-  const calculateEngagementMetrics = () => {
-    if (!posts?.length) return null;
+  const filteredPosts = useMemo(() => {
+    return filterPostsByTimeRange(posts, timeRange);
+  }, [posts, timeRange]);
 
-    const metrics = {
-      likes: 0,
-      reposts: 0,
-      replies: 0,
-      totalPosts: posts.length,
-      engagementRate: 0,
-      topPosts: [],
-    };
-
-    posts.forEach(post => {
-      if (!post?.post) return;
-      
-      metrics.likes += post.post.likeCount || 0;
-      metrics.reposts += post.post.repostCount || 0;
-      metrics.replies += post.post.replyCount || 0;
-
-      metrics.topPosts.push({
-        text: post.post.text || '',
-        engagement: (post.post.likeCount || 0) + (post.post.repostCount || 0) + (post.post.replyCount || 0),
-        timestamp: new Date(post.post.indexedAt),
-        likes: post.post.likeCount || 0,
-        reposts: post.post.repostCount || 0,
-        replies: post.post.replyCount || 0,
-        uri: post.post.uri,
-        author: post.post.author.handle
-      });
-    });
-
-    const totalInteractions = metrics.likes + metrics.reposts + metrics.replies;
-    metrics.engagementRate = metrics.totalPosts > 0 
-      ? ((totalInteractions / metrics.totalPosts) * 100).toFixed(2)
-      : '0.00';
-
-    metrics.topPosts.sort((a, b) => b.engagement - a.engagement);
-    metrics.topPosts = metrics.topPosts.slice(0, 3);
-
-    return metrics;
-  };
-
-  const metrics = calculateEngagementMetrics();
+  const metrics = useMemo(() => {
+    return calculateEngagementMetrics(filteredPosts);
+  }, [filteredPosts]);
 
   if (loading) {
     return (
@@ -89,7 +54,7 @@ const EngagementOverview = ({ posts, loading }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-100 dark:border-gray-600">
           <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-4">
-            Overall Engagement
+            Overall Engagement ({timeRange} days)
           </h4>
           <EngagementStats metrics={metrics} />
         </div>
@@ -99,9 +64,15 @@ const EngagementOverview = ({ posts, loading }) => {
             Top Performing Posts
           </h4>
           <div className="space-y-4">
-            {metrics.topPosts.map((post, index) => (
-              <TopPost key={index} post={post} />
-            ))}
+            {metrics.topPosts.length > 0 ? (
+              metrics.topPosts.map((post) => (
+                <TopPost key={post.uri} post={post} />
+              ))
+            ) : (
+              <div className="text-center text-gray-500 dark:text-gray-400 py-4">
+                No posts in this time range
+              </div>
+            )}
           </div>
         </div>
       </div>
