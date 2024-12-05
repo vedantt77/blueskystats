@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import AnnouncementBar from './components/AnnouncementBar';
 import AdvertiseWithUs from './components/AdvertiseWithUs';
 import Header from './components/Header';
+import SearchBar from './components/SearchBar';
 import LandingHero from './components/LandingHero';
 
 const agent = createRateLimitedAgent();
@@ -48,7 +49,7 @@ function App() {
     }
   };
 
-  const fetchProfile = async (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -82,40 +83,27 @@ function App() {
 
   return (
     <div className="min-h-screen transition-colors duration-200 dark:bg-gray-900">
-      <AnnouncementBar />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-4">
-          <Header darkMode={darkMode} setDarkMode={setDarkMode} />
-
-          {!profile && <LandingHero />}
-
-          <form onSubmit={fetchProfile} className="mb-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value)}
-                placeholder="Enter Bluesky handle"
-                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
-                required
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? (
-                  <span className="inline-block animate-spin mr-2">⌛</span>
-                ) : (
-                  'Search'
-                )}
-              </button>
-            </div>
-          </form>
+      <div className="sticky top-0 z-10">
+        <AnnouncementBar />
+        <div className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto px-4 py-4">
+            <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+          </div>
         </div>
+      </div>
 
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
         {!profile && (
           <>
+            <LandingHero />
+            <div className="max-w-2xl mx-auto -mt-4 mb-12">
+              <SearchBar 
+                handle={handle}
+                setHandle={setHandle}
+                loading={loading}
+                onSubmit={handleSearch}
+              />
+            </div>
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
               Featured Profile
             </h2>
@@ -181,7 +169,7 @@ function App() {
             <EngagementOverview posts={posts} loading={postsLoading} profile={profile} />
           </div>
         )}
-      </div>
+      </main>
       <Footer />
     </div>
   );
