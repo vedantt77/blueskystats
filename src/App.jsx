@@ -3,6 +3,7 @@ import { BskyAgent } from '@atproto/api';
 import ContributionGraph from './components/ContributionGraph';
 import EngagementOverview from './components/EngagementOverview';
 import FeaturedProfile from './components/FeaturedProfile';
+import Footer from './components/Footer';
 
 const agent = new BskyAgent({ service: 'https://bsky.social' });
 
@@ -180,10 +181,11 @@ function App() {
             </div>
 
             <ContributionGraph data={postsByDate} loading={postsLoading} />
-            <EngagementOverview posts={posts} loading={postsLoading} />
+            <EngagementOverview posts={posts} loading={postsLoading} profile={profile} />
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

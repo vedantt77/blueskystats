@@ -2,16 +2,26 @@ import React, { useState } from 'react';
 
 const PostPreview = ({ text }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const maxLength = 280; // Twitter-like character limit
+  const maxLength = 280;
   const shouldTruncate = text.length > maxLength;
   
   const displayText = isExpanded ? text : shouldTruncate ? `${text.slice(0, maxLength)}...` : text;
 
+  const formatText = (text) => {
+    // Handle line breaks
+    return text.split('\n').map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        {index < text.split('\n').length - 1 && <br />}
+      </React.Fragment>
+    ));
+  };
+
   return (
     <div className="relative">
-      <p className="text-gray-900 dark:text-white whitespace-pre-wrap break-words">
-        {displayText}
-      </p>
+      <div className="text-gray-900 dark:text-white whitespace-pre-wrap break-words">
+        {formatText(displayText)}
+      </div>
       {shouldTruncate && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
