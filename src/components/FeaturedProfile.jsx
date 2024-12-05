@@ -5,26 +5,36 @@ import { featuredProfiles } from '../config/featuredProfiles';
 const FeaturedProfile = () => {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchFeaturedProfiles = async () => {
       try {
         const agent = createRateLimitedAgent();
         const profileData = [];
+        
+        // Login only once
+        await agent.login(featuredProfiles[0].credentials);
 
+        // Fetch profiles sequentially to respect rate limits
         for (const profile of featuredProfiles) {
           try {
-            await agent.login(profile.credentials);
             const { data } = await agent.getProfile({ actor: profile.handle });
             profileData.push(data);
           } catch (error) {
             console.error(`Error fetching profile ${profile.handle}:`, error);
+            // Continue with other profiles if one fails
           }
         }
 
-        setProfiles(profileData);
+        if (profileData.length === 0) {
+          setError('Unable to load featured profiles at this time');
+        } else {
+          setProfiles(profileData);
+        }
       } catch (error) {
         console.error('Error fetching featured profiles:', error);
+        setError('Unable to load featured profiles at this time');
       } finally {
         setLoading(false);
       }
@@ -38,6 +48,16 @@ const FeaturedProfile = () => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin text-blue-500">⌛</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+        <div className="text-center text-gray-600 dark:text-gray-400">
+          {error}
         </div>
       </div>
     );

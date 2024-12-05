@@ -1,18 +1,31 @@
 import { BskyAgent } from '@atproto/api';
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 class RateLimitedAgent {
   constructor(service) {
     this.agent = new BskyAgent({ service });
     this.queue = [];
     this.processing = false;
-    this.retryDelay = 1000; // 1 second delay between requests
-    this.maxRetries = 3;
+    this.retryDelay = 2000; // Increased to 2 seconds
+    this.maxRetries = 5; // Increased max retries
+    this.lastRequestTime = 0;
+    this.minRequestInterval = 1000; // Minimum 1 second between requests
   }
 
   async login(credentials) {
     return this.agent.login(credentials);
+  }
+
+  async delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async waitForNextRequest() {
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    if (timeSinceLastRequest < this.minRequestInterval) {
+      await this.delay(this.minRequestInterval - timeSinceLastRequest);
+    }
+    this.lastRequestTime = Date.now();
   }
 
   async processQueue() {
@@ -24,19 +37,19 @@ class RateLimitedAgent {
       const { operation, resolve, reject, retries = 0 } = this.queue.shift();
       
       try {
-        await delay(this.retryDelay);
+        await this.waitForNextRequest();
         const result = await operation();
         resolve(result);
       } catch (error) {
         if (error.status === 429 && retries < this.maxRetries) {
-          // Rate limit hit - add back to queue with increased retry count
+          console.log(`Rate limit hit, retrying in ${this.retryDelay * Math.pow(2, retries)}ms...`);
           this.queue.unshift({
             operation,
             resolve,
             reject,
             retries: retries + 1
           });
-          await delay(this.retryDelay * Math.pow(2, retries)); // Exponential backoff
+          await this.delay(this.retryDelay * Math.pow(2, retries));
         } else {
           reject(error);
         }
@@ -62,6 +75,12 @@ class RateLimitedAgent {
   }
 }
 
+// Create a singleton instance
+let agentInstance = null;
+
 export const createRateLimitedAgent = (service = 'https://bsky.social') => {
-  return new RateLimitedAgent(service);
+  if (!agentInstance) {
+    agentInstance = new RateLimitedAgent(service);
+  }
+  return agentInstance;
 };
