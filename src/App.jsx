@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BskyAgent } from '@atproto/api';
+import { createRateLimitedAgent } from './utils/apiUtils';
 import ContributionGraph from './components/ContributionGraph';
 import EngagementOverview from './components/EngagementOverview';
 import FeaturedProfile from './components/FeaturedProfile';
@@ -7,8 +7,9 @@ import Footer from './components/Footer';
 import AnnouncementBar from './components/AnnouncementBar';
 import AdvertiseWithUs from './components/AdvertiseWithUs';
 import Header from './components/Header';
+import LandingHero from './components/LandingHero';
 
-const agent = new BskyAgent({ service: 'https://bsky.social' });
+const agent = createRateLimitedAgent();
 
 function App() {
   const [handle, setHandle] = useState('');
@@ -85,6 +86,8 @@ function App() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-4">
           <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+
+          {!profile && <LandingHero />}
 
           <form onSubmit={fetchProfile} className="mb-4">
             <div className="flex gap-2">

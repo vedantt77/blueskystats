@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BskyAgent } from '@atproto/api';
+import { createRateLimitedAgent } from '../utils/apiUtils';
 import { featuredProfiles } from '../config/featuredProfiles';
 
 const FeaturedProfile = () => {
@@ -9,7 +9,7 @@ const FeaturedProfile = () => {
   useEffect(() => {
     const fetchFeaturedProfiles = async () => {
       try {
-        const agent = new BskyAgent({ service: 'https://bsky.social' });
+        const agent = createRateLimitedAgent();
         const profileData = [];
 
         for (const profile of featuredProfiles) {
