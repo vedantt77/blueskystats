@@ -4,6 +4,9 @@ import ContributionGraph from './components/ContributionGraph';
 import EngagementOverview from './components/EngagementOverview';
 import FeaturedProfile from './components/FeaturedProfile';
 import Footer from './components/Footer';
+import AnnouncementBar from './components/AnnouncementBar';
+import AdvertiseWithUs from './components/AdvertiseWithUs';
+import Header from './components/Header';
 
 const agent = new BskyAgent({ service: 'https://bsky.social' });
 
@@ -78,20 +81,10 @@ function App() {
 
   return (
     <div className="min-h-screen transition-colors duration-200 dark:bg-gray-900">
+      <AnnouncementBar />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 pb-4">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-              Bluesky Profile Stats
-            </h1>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {darkMode ? '🌞' : '🌙'}
-            </button>
-          </div>
+          <Header darkMode={darkMode} setDarkMode={setDarkMode} />
 
           <form onSubmit={fetchProfile} className="mb-4">
             <div className="flex gap-2">
@@ -124,6 +117,7 @@ function App() {
               Featured Profile
             </h2>
             <FeaturedProfile />
+            <AdvertiseWithUs />
           </>
         )}
 
