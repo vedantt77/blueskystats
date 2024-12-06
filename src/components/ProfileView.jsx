@@ -1,6 +1,6 @@
 import React from 'react';
 import ContributionGraph from './ContributionGraph';
-import EngagementOverview from './EngagementOverview';
+import ProfileOverview from './ProfileOverview/ProfileOverview';
 
 const ProfileView = ({ profile, posts, postsByDate, loading }) => {
   if (!profile) return null;
@@ -53,7 +53,7 @@ const ProfileView = ({ profile, posts, postsByDate, loading }) => {
       </div>
 
       <ContributionGraph data={postsByDate} loading={loading} />
-      <EngagementOverview posts={posts} loading={loading} profile={profile} />
+      <ProfileOverview profile={profile} loading={loading} />
     </div>
   );
 };
