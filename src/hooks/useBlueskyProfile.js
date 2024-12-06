@@ -27,16 +27,16 @@ export const useBlueskyProfile = () => {
       }
 
       const blueskyService = getBlueskyService();
-      const { data } = await blueskyService.getProfile(handle);
+      const { data: profileData } = await blueskyService.getProfile(handle);
       
-      if (!data) {
+      if (!profileData) {
         throw {
           status: 400,
           message: 'Profile not found'
         };
       }
 
-      setProfile(data);
+      setProfile(profileData);
       await fetchPosts(handle);
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -52,10 +52,13 @@ export const useBlueskyProfile = () => {
       const { data } = await blueskyService.getAuthorFeed(handle);
       setPosts(data.feed);
 
+      // Process posts by date
       const dateMap = {};
       data.feed.forEach(item => {
-        const date = new Date(item.post.indexedAt).toISOString().split('T')[0];
-        dateMap[date] = (dateMap[date] || 0) + 1;
+        if (item.post?.indexedAt) {
+          const date = new Date(item.post.indexedAt).toISOString().split('T')[0];
+          dateMap[date] = (dateMap[date] || 0) + 1;
+        }
       });
       setPostsByDate(dateMap);
     } catch (err) {
