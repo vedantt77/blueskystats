@@ -3,11 +3,15 @@ export class RateLimiter {
     this.queue = [];
     this.processing = false;
     this.lastRequestTime = 0;
+    this.requestsInWindow = 0;
+    this.windowStart = Date.now();
     this.config = {
-      minRequestInterval: 1000, // 1 second between requests
-      maxRetries: 5,
-      baseRetryDelay: 2000, // 2 seconds
-      maxRetryDelay: 32000, // 32 seconds
+      minRequestInterval: 2000, // 2 seconds between requests
+      maxRetries: 3,
+      baseRetryDelay: 5000, // 5 seconds
+      maxRetryDelay: 30000, // 30 seconds
+      maxRequestsPerWindow: 50, // Maximum requests per minute
+      windowDuration: 60000, // 1 minute window
     };
   }
 
@@ -15,11 +19,28 @@ export class RateLimiter {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  resetRateLimit() {
+    const now = Date.now();
+    if (now - this.windowStart >= this.config.windowDuration) {
+      this.requestsInWindow = 0;
+      this.windowStart = now;
+    }
+  }
+
+  async checkRateLimit() {
+    this.resetRateLimit();
+    
+    if (this.requestsInWindow >= this.config.maxRequestsPerWindow) {
+      const waitTime = this.config.windowDuration - (Date.now() - this.windowStart);
+      await this.delay(waitTime);
+      this.resetRateLimit();
+    }
+  }
+
   calculateRetryDelay(attempt) {
-    // Exponential backoff with jitter
     const exponentialDelay = this.config.baseRetryDelay * Math.pow(2, attempt);
     const maxDelay = Math.min(exponentialDelay, this.config.maxRetryDelay);
-    const jitter = Math.random() * 1000; // Add up to 1 second of random jitter
+    const jitter = Math.random() * 1000;
     return maxDelay + jitter;
   }
 
@@ -31,7 +52,9 @@ export class RateLimiter {
       await this.delay(this.config.minRequestInterval - timeSinceLastRequest);
     }
     
+    await this.checkRateLimit();
     this.lastRequestTime = Date.now();
+    this.requestsInWindow++;
   }
 
   async processQueue() {
@@ -47,9 +70,12 @@ export class RateLimiter {
         const result = await operation();
         resolve(result);
       } catch (error) {
-        if (error.status === 429 && retries < this.config.maxRetries) {
+        const isRateLimit = error.status === 429;
+        const isServerError = error.status >= 500;
+        
+        if ((isRateLimit || isServerError) && retries < this.config.maxRetries) {
           const retryDelay = this.calculateRetryDelay(retries);
-          console.log(`Rate limit hit, retrying in ${retryDelay}ms...`);
+          console.log(`Request failed, retrying in ${retryDelay}ms...`);
           
           this.queue.unshift({
             operation,
@@ -71,7 +97,7 @@ export class RateLimiter {
   async enqueue(operation) {
     return new Promise((resolve, reject) => {
       this.queue.push({ operation, resolve, reject });
-      this.processQueue();
+      this.processQueue().catch(reject);
     });
   }
 }

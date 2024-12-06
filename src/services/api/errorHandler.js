@@ -1,12 +1,20 @@
 export class ErrorHandler {
   handle(error) {
-    // Enhance error with more descriptive messages
     if (error.status === 429) {
       return {
         ...error,
-        message: 'Too many requests. Please try again later.',
+        message: 'Rate limit exceeded. Please try again later.',
         userMessage: 'We\'re experiencing high traffic. Please wait a moment before trying again.',
-        retryAfter: this.getRetryAfterFromHeaders(error.headers)
+        retryAfter: this.getRetryAfterFromHeaders(error.headers) || 5000
+      };
+    }
+
+    if (error.status >= 500) {
+      return {
+        ...error,
+        message: 'Server error. Retrying request...',
+        userMessage: 'Temporary server issue. Please wait while we retry.',
+        retryAfter: 5000
       };
     }
 
@@ -14,7 +22,7 @@ export class ErrorHandler {
       return {
         ...error,
         message: 'Authentication failed',
-        userMessage: 'Unable to authenticate. Please check your credentials.'
+        userMessage: 'Unable to authenticate. Please try again later.'
       };
     }
 
@@ -26,11 +34,10 @@ export class ErrorHandler {
       };
     }
 
-    // Generic error handling
     return {
       ...error,
       message: error.message || 'An unexpected error occurred',
-      userMessage: 'Something went wrong. Please try again later.'
+      userMessage: 'Something went wrong. Please try again in a few moments.'
     };
   }
 
