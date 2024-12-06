@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getBlueskyService } from '../services/api/blueskyService';
+import { isValidHandle, sanitizeHandle, formatErrorMessage } from '../utils/validationUtils';
 
 export const useBlueskyProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -8,7 +9,7 @@ export const useBlueskyProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchProfile = async (handle) => {
+  const fetchProfile = async (rawHandle) => {
     setLoading(true);
     setError(null);
     setProfile(null);
@@ -16,13 +17,30 @@ export const useBlueskyProfile = () => {
     setPostsByDate({});
 
     try {
+      const handle = sanitizeHandle(rawHandle);
+      
+      if (!isValidHandle(handle)) {
+        throw {
+          status: 400,
+          message: 'actor must be a valid did or a handle'
+        };
+      }
+
       const blueskyService = getBlueskyService();
       const { data } = await blueskyService.getProfile(handle);
+      
+      if (!data) {
+        throw {
+          status: 400,
+          message: 'Profile not found'
+        };
+      }
+
       setProfile(data);
       await fetchPosts(handle);
     } catch (err) {
       console.error('Error fetching profile:', err);
-      setError(err.userMessage || 'An unexpected error occurred');
+      setError(formatErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -42,7 +60,7 @@ export const useBlueskyProfile = () => {
       setPostsByDate(dateMap);
     } catch (err) {
       console.error('Error fetching posts:', err);
-      setError(err.userMessage || 'Failed to fetch posts');
+      setError(formatErrorMessage(err));
     }
   };
 
