@@ -7,7 +7,7 @@ const GrowthMetric = ({ label, current, previous, period }) => {
   const isNeutral = growth === 0;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-100 dark:border-gray-600">
       <div className="flex justify-between items-start mb-2">
         <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
         <span className={`text-sm font-medium ${
@@ -22,7 +22,7 @@ const GrowthMetric = ({ label, current, previous, period }) => {
         {current.toLocaleString()}
       </div>
       <div className="text-sm text-gray-600 dark:text-gray-400">
-        {growth > 0 ? '+' : ''}{growth.toLocaleString()} {period}
+        {growth > 0 ? '+' : ''}{growth.toLocaleString()} in {period}
       </div>
     </div>
   );
