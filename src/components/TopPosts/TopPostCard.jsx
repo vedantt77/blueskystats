@@ -35,7 +35,20 @@ const TopPostCard = ({ post }) => {
           <p className="text-gray-900 dark:text-white text-sm mb-3 line-clamp-2">
             {post.text}
           </p>
-          <PerformanceMetrics post={post} />
+          <div className="flex gap-4 mb-2">
+            <div className="flex items-center gap-1">
+              <span className="text-gray-600 dark:text-gray-400">👥</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {formatNumber(post.totalReach)} reach
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-gray-600 dark:text-gray-400">⚡</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {formatNumber(post.engagement)} engagement
+              </span>
+            </div>
+          </div>
           <PerformanceSummary post={post} />
         </div>
       </div>
