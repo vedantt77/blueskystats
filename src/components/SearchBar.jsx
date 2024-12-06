@@ -1,8 +1,18 @@
 import React from 'react';
+import { isValidHandle } from '../utils/validationUtils';
 
 const SearchBar = ({ handle, setHandle, loading, onSubmit }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!isValidHandle(handle.trim())) {
+      alert('Please enter a valid Bluesky handle (e.g., username.bsky.social)');
+      return;
+    }
+    onSubmit(e);
+  };
+
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-4">
         <div className="text-center text-gray-600 dark:text-gray-300">
           Enter a Bluesky handle to view their stats
@@ -12,7 +22,7 @@ const SearchBar = ({ handle, setHandle, loading, onSubmit }) => {
             type="text"
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
-            placeholder="Enter Bluesky handle"
+            placeholder="e.g., username.bsky.social"
             className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors"
             required
           />
