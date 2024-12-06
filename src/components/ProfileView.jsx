@@ -1,6 +1,7 @@
 import React from 'react';
 import ContributionGraph from './ContributionGraph';
 import ProfileOverview from './ProfileOverview/ProfileOverview';
+import TopPostsSection from './TopPosts/TopPostsSection';
 
 const ProfileView = ({ profile, posts, postsByDate, loading }) => {
   if (!profile) return null;
@@ -54,6 +55,7 @@ const ProfileView = ({ profile, posts, postsByDate, loading }) => {
 
       <ContributionGraph data={postsByDate} loading={loading} />
       <ProfileOverview profile={profile} loading={loading} />
+      <TopPostsSection posts={posts} />
     </div>
   );
 };

@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TimeRangeSelect from './TimeRangeSelect';
 import MetricsGrid from './MetricsGrid';
 import { calculateGrowthMetrics } from '../../utils/profileUtils';
 
 const ProfileOverview = ({ profile, loading }) => {
   const [timeRange, setTimeRange] = useState('30');
+  const [metrics, setMetrics] = useState(null);
+
+  useEffect(() => {
+    if (profile) {
+      const newMetrics = calculateGrowthMetrics(profile, parseInt(timeRange));
+      setMetrics(newMetrics);
+    }
+  }, [profile, timeRange]);
 
   if (loading) {
     return (
@@ -16,7 +24,7 @@ const ProfileOverview = ({ profile, loading }) => {
     );
   }
 
-  const metrics = calculateGrowthMetrics(profile, parseInt(timeRange));
+  if (!metrics) return null;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">

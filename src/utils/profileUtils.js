@@ -1,24 +1,31 @@
-export const calculateGrowthMetrics = (profile, days = 30) => {
-  // Calculate previous values based on the selected time range
-  const calculatePreviousValue = (current, days) => {
-    // Simulate historical data with a decay factor based on time range
-    const decayFactor = days === 7 ? 0.05 : days === 30 ? 0.1 : 0.15;
-    const reduction = Math.floor(current * decayFactor);
-    return Math.max(0, current - reduction);
+import { getRandomGrowth } from './mockDataUtils';
+
+export const calculateGrowthMetrics = (profile, timeRange = 30) => {
+  // Generate realistic historical data based on current values
+  const calculatePreviousValue = (currentValue, days) => {
+    const dailyGrowth = getRandomGrowth(days);
+    let previousValue = currentValue;
+    
+    // Work backwards to calculate previous value
+    for (let i = 0; i < days; i++) {
+      previousValue = Math.floor(previousValue / (1 + dailyGrowth));
+    }
+    
+    return Math.max(0, previousValue);
   };
 
   return {
     followers: {
       current: profile.followersCount,
-      previous: calculatePreviousValue(profile.followersCount, days)
+      previous: calculatePreviousValue(profile.followersCount, timeRange)
     },
     following: {
       current: profile.followsCount,
-      previous: calculatePreviousValue(profile.followsCount, days)
+      previous: calculatePreviousValue(profile.followsCount, timeRange)
     },
     posts: {
       current: profile.postsCount,
-      previous: calculatePreviousValue(profile.postsCount, days)
+      previous: calculatePreviousValue(profile.postsCount, timeRange)
     }
   };
 };
