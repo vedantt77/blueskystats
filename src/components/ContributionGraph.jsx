@@ -26,7 +26,7 @@ const ContributionGraph = ({ data, loading }) => {
   };
 
   const calendarData = generateCalendarData();
-  const { currentStreak, longestStreak } = calculateStreak(calendarData);
+  const { longestStreak } = calculateStreak(calendarData);
 
   if (loading) {
     return (
@@ -46,37 +46,32 @@ const ContributionGraph = ({ data, loading }) => {
         </h3>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm">
           <div>
-            <span className="text-gray-600 dark:text-gray-300">Current streak: </span>
-            <span className="font-bold text-blue-500 dark:text-blue-400">{currentStreak} days</span>
-          </div>
-          <div>
             <span className="text-gray-600 dark:text-gray-300">Longest streak: </span>
             <span className="font-bold text-blue-500 dark:text-blue-400">{longestStreak} days</span>
           </div>
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
-        <div className="min-w-max">
+      <div className="w-full">
+        <div className="w-full">
           <div className="flex">
-            <div className="w-8">
+            <div className="w-6">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => (
-                <div key={day} className="h-4 text-xs text-gray-500 dark:text-gray-400 text-center">
-                  {i % 2 === 0 ? day : ''}
+                <div key={day} className="h-3 text-[10px] text-gray-500 dark:text-gray-400 text-center">
+                  {i % 2 === 0 ? day.slice(0, 1) : ''}
                 </div>
               ))}
             </div>
-            <div className="flex gap-1">
-              {Array.from({ length: 53 }, (_, weekIndex) => (
-                <div key={weekIndex} className="flex flex-col gap-1">
+            <div className="flex gap-[2px] flex-1">
+              {Array.from({ length: 52 }, (_, weekIndex) => (
+                <div key={weekIndex} className="flex flex-col gap-[2px] flex-1">
                   {Array.from({ length: 7 }, (_, dayIndex) => {
                     const dataIndex = weekIndex * 7 + dayIndex;
                     const dayData = calendarData[dataIndex];
                     return (
                       <div
                         key={dayIndex}
-                        className={`w-4 h-4 rounded-sm border ${getIntensityColor(dayData?.count || 0)} 
-                          transition-colors duration-200`}
+                        className={`w-full h-3 rounded-[2px] border ${getIntensityColor(dayData?.count || 0)} transition-colors duration-200`}
                         title={`${dayData?.date.toDateString()}: ${dayData?.count || 0} posts`}
                       />
                     );
@@ -86,11 +81,11 @@ const ContributionGraph = ({ data, loading }) => {
             </div>
           </div>
           <div className="flex mt-2">
-            <div className="w-8" />
-            <div className="flex justify-between flex-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="w-6" />
+            <div className="flex justify-between flex-1 text-[10px] text-gray-500 dark:text-gray-400">
               {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                 .map(month => (
-                  <div key={month} className="px-1">{month}</div>
+                  <div key={month} className="flex-1 text-center">{month}</div>
                 ))}
             </div>
           </div>
