@@ -43,42 +43,22 @@ export const calculateStreak = (days) => {
   let currentStreak = 0;
   let longestStreak = 0;
   let streak = 0;
-  let lastPostDate = null;
 
   // Calculate streaks from newest to oldest
   for (let i = days.length - 1; i >= 0; i--) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const postDate = new Date(days[i].date);
-    postDate.setHours(0, 0, 0, 0);
-
     if (days[i].count > 0) {
-      // Check if this is part of a continuous streak
-      if (lastPostDate === null || 
-          (lastPostDate - postDate) / (1000 * 60 * 60 * 24) === 1) {
-        streak++;
-        // Update current streak only if it's an active streak (includes today or yesterday)
-        if (i === days.length - 1 || 
-            (today - postDate) / (1000 * 60 * 60 * 24) <= 1) {
-          currentStreak = streak;
-        }
-        longestStreak = Math.max(longestStreak, streak);
-      } else {
-        streak = 1;
+      streak++;
+      // Update current streak only for the most recent continuous streak
+      if (i === days.length - 1 || streak === 1) {
+        currentStreak = streak;
       }
-      lastPostDate = postDate;
+      longestStreak = Math.max(longestStreak, streak);
     } else {
-      // Break the streak if there's a gap
       streak = 0;
-      lastPostDate = null;
     }
   }
 
-  return { 
-    currentStreak, 
-    longestStreak,
-    isCurrentlyStreaking: currentStreak > 0 
-  };
+  return { currentStreak, longestStreak };
 };
 
 export const scrollToCurrentMonth = () => {

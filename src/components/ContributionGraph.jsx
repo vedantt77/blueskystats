@@ -26,7 +26,7 @@ const ContributionGraph = ({ data, loading }) => {
   };
 
   const calendarData = generateCalendarData();
-  const { currentStreak, longestStreak, isCurrentlyStreaking } = calculateStreak(calendarData);
+  const { longestStreak } = calculateStreak(calendarData);
 
   if (loading) {
     return (
@@ -45,15 +45,6 @@ const ContributionGraph = ({ data, loading }) => {
           Posting Activity
         </h3>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm">
-          <div>
-            <span className="text-gray-600 dark:text-gray-300">Current streak: </span>
-            <span className="font-bold text-blue-500 dark:text-blue-400">
-              {currentStreak} days
-              {isCurrentlyStreaking && currentStreak > 0 && 
-                <span className="ml-2 text-green-600 dark:text-green-400">🔥 Active</span>
-              }
-            </span>
-          </div>
           <div>
             <span className="text-gray-600 dark:text-gray-300">Longest streak: </span>
             <span className="font-bold text-blue-500 dark:text-blue-400">{longestStreak} days</span>
